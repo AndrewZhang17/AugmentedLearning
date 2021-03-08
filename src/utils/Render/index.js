@@ -61,7 +61,7 @@ export default {
       box.setAttribute("class", "video-item-box");
       dom.appendChild(box);
       this.canvas.appendChild(dom);
-      stream.play("video-item-" + id);
+      stream.play("video-item-" + id, {fit: "contain"});
     }
     if (fit) {
       dom.classList.add("window__fit");

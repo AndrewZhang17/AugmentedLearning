@@ -21,6 +21,30 @@ import { logger, log } from "../../utils/Logger";
 // eslint-disable-next-line
 import Polyfill from "@/utils/Polyfill";
 
+import firebase from "firebase/app";
+import "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDOCwPfl_GsC-PKTDQmZxyAaBuvxnHDo7U",
+  authDomain: "augmentedteaching-ea1ff.firebaseapp.com",
+  databaseURL: "https://augmentedteaching-ea1ff-default-rtdb.firebaseio.com",
+  projectId: "augmentedteaching-ea1ff",
+  storageBucket: "augmentedteaching-ea1ff.appspot.com",
+  messagingSenderId: "984963266408",
+  appId: "1:984963266408:web:2f005bfe04d93b781188dd"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+var database = firebase.database();
+
+function writeClickData(offsetX, offsetY) {
+  firebase.database().ref('clicks/').push({
+    offsetX: offsetX,
+    offsetY: offsetY
+  });
+}
+
 // If display a window to show video info
 const DUAL_STREAM_DEBUG = false;
 let options = {};
@@ -295,6 +319,19 @@ const addStream = (stream, push = false) => {
     ButtonControl.disable([".displayModeBtn", ".disableRemoteBtn"]);
   }
   Renderer.customRender(streamList, options.displayMode, mainId);
+  $("video").on("click", function(e) {
+    var aspectRatio = e.target.videoWidth/e.target.videoHeight;
+    if (aspectRatio > 1) {
+      var offsetX = (e.offsetX - (e.target.offsetWidth / 2))/e.target.offsetWidth;
+      var offsetY = ((e.offsetY - (e.target.offsetHeight / 2))/(e.target.offsetWidth / aspectRatio));
+      writeClickData(offsetX, offsetY);
+    }
+    else {
+      var offsetX = (e.offsetX - (e.target.offsetWidth / 2))/(e.target.offsetHeight * aspectRatio);
+      var offsetY = (e.offsetY - (e.target.offsetHeight / 2))/e.target.offsetHeight;
+      writeClickData(offsetX, offsetY);
+    }    
+  });
 };
 
 // Helper function to fetch video streams from the data structure
